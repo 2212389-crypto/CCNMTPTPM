@@ -1,0 +1,11 @@
+import router from './app/router';
+import { RouterProvider } from 'react-router-dom';
+import ErrorBoundary from './components/ui/ErrorBoundary';
+
+export default function App() { 
+  return (
+    <ErrorBoundary>
+      <RouterProvider router={router} />
+    </ErrorBoundary>
+  ); 
+}

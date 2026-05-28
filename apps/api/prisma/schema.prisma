@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String        @id @default(cuid())
+  email            String        @unique
+  passwordHash     String
+  fullName         String
+  avatarUrl        String?
+  role             Role          @default(USER)
+  isCurrentlyActive Boolean      @default(false)
+  lastActivityAt   DateTime?
+  lastActivityType String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  accounts         Account[]
+  categories       Category[]
+  transactions     Transaction[]
+}
+
+model Account {
+  id           String        @id @default(cuid())
+  name         String
+  type         String
+  balance      Decimal       @db.Decimal(14, 2)
+  currency     String        @default("VND")
+  ownerId      String
+  createdAt    DateTime      @default(now())
+  owner        User          @relation(fields: [ownerId], references: [id])
+  transactions Transaction[]
+}
+
+model Category {
+  id           String        @id @default(cuid())
+  name         String
+  type         TxType
+  ownerId      String?
+  createdAt    DateTime      @default(now())
+  owner        User?         @relation(fields: [ownerId], references: [id])
+  transactions Transaction[]
+
+  @@unique([name, type, ownerId])
+}
+
+model Transaction {
+  id         String    @id @default(cuid())
+  amount     Decimal   @db.Decimal(14, 2)
+  type       TxType
+  occurredAt DateTime
+  note       String?
+  accountId  String
+  categoryId String?
+  userId     String
+  createdAt  DateTime  @default(now())
+  account    Account   @relation(fields: [accountId], references: [id])
+  category   Category? @relation(fields: [categoryId], references: [id])
+  user       User      @relation(fields: [userId], references: [id])
+
+  @@index([userId, occurredAt])
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum TxType {
+  INCOME
+  EXPENSE
+}

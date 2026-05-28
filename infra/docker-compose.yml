@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: expense-manager-db
+    environment:
+      POSTGRES_USER: expense_user
+      POSTGRES_PASSWORD: '1234'
+      POSTGRES_DB: expense_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U expense_user -d expense_db']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ../apps/api
+      dockerfile: Dockerfile
+    container_name: expense-manager-api
+    ports:
+      - '4000:4000'
+    environment:
+      DATABASE_URL: postgres://expense_user:1234@postgres:5432/expense_db
+      JWT_ACCESS_SECRET: default_access_secret
+      JWT_REFRESH_SECRET: default_refresh_secret
+      UPLOAD_DIR: /app/uploads
+    depends_on:
+      - postgres
+    volumes:
+      - api_uploads:/app/uploads
+
+  web:
+    build:
+      context: ../apps/web
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://api:4000
+    container_name: expense-manager-web
+    ports:
+      - '3000:80'
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+  api_uploads:
+

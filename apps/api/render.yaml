@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: expense-manager-api
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install && npx prisma generate
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+    # Add these in Render dashboard for security:
+    # DATABASE_URL - from your database service
+    # JWT_ACCESS_SECRET - generate secure secret  
+    # JWT_REFRESH_SECRET - generate secure secret
+    # CORS_ORIGIN - your frontend URL
