@@ -137,3 +137,4 @@ docker-compose.override.yml
 # Build artifacts
 apps/web/dist/
 apps/api/dist/
+apps/web/.env.local
