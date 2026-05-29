@@ -1,6 +1,5 @@
 node_modules
+.next
 npm-debug.log*
-dist
-coverage
 .env
-.git
+.DS_Store
