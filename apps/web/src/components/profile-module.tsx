@@ -134,20 +134,58 @@ export default function ProfileModule({
       </section>
 
       {tab === 'overview' ? (
-        <section className="grid gap-4 xl:grid-cols-3">
-          <Card title="Hồ sơ" icon={<AppIcon name="user" className="h-5 w-5" />}>
-            <p className="text-sm text-[var(--text-muted)]">Tên hiển thị: <span className="font-semibold text-[var(--text-main)]">{displayName || 'Chưa đặt'}</span></p>
-            <p className="mt-2 text-sm text-[var(--text-muted)]">Ghi chú: {bio || 'Chưa có mô tả'}</p>
-          </Card>
-          <Card title="Tài khoản" icon={<AppIcon name="wallet" className="h-5 w-5" />}>
-            <p className="text-sm text-[var(--text-muted)]">{accounts.length} tài khoản được kết nối</p>
-            <p className="mt-2 text-2xl font-semibold text-[var(--text-main)]">{fmtCurrency(totalBalance, profile?.currency ?? currency)}</p>
-          </Card>
-          <Card title="Hoạt động" icon={<AppIcon name="chart" className="h-5 w-5" />}>
-            <p className="text-sm text-[var(--text-muted)]">{transactions.length} giao dịch · {budgets.length} ngân sách</p>
-            <p className="mt-2 text-sm text-[var(--text-muted)]">Cập nhật lần cuối: {profile?.updated_at ? fmtDate(profile.updated_at) : 'Chưa cập nhật'}</p>
-          </Card>
-        </section>
+        <div className="space-y-6">
+          {/* Header giới thiệu */}
+          <div className="rounded-2xl border border-[var(--border)] bg-white p-6 shadow-[var(--shadow-card)]">
+            <h2 className="text-xl font-bold text-[var(--text-main)] mb-2">
+              Expense Manager
+            </h2>
+            <p className="text-[var(--text-muted)] text-sm leading-relaxed">
+              Ứng dụng quản lý tài chính cá nhân xây dựng với Next.js 15 và Supabase — giúp bạn kiểm soát dòng tiền rõ ràng, hiệu quả mỗi ngày.
+            </p>
+          </div>
+
+          {/* Grid 4 tính năng */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="rounded-xl border border-[var(--border)] bg-white p-4 shadow-[var(--shadow-card)]">
+              <p className="font-semibold text-[var(--text-main)] mb-1">
+                Tài khoản
+              </p>
+              <p className="text-sm text-[var(--text-muted)]">
+                Quản lý số dư đa tài khoản
+              </p>
+            </div>
+            <div className="rounded-xl border border-[var(--border)] bg-white p-4 shadow-[var(--shadow-card)]">
+              <p className="font-semibold text-[var(--text-main)] mb-1">
+                Giao dịch
+              </p>
+              <p className="text-sm text-[var(--text-muted)]">
+                Ghi nhận thu chi hàng ngày
+              </p>
+            </div>
+            <div className="rounded-xl border border-[var(--border)] bg-white p-4 shadow-[var(--shadow-card)]">
+              <p className="font-semibold text-[var(--text-main)] mb-1">
+                Ngân sách
+              </p>
+              <p className="text-sm text-[var(--text-muted)]">
+                Kiểm soát hạn mức chi tiêu
+              </p>
+            </div>
+            <div className="rounded-xl border border-[var(--border)] bg-white p-4 shadow-[var(--shadow-card)]">
+              <p className="font-semibold text-[var(--text-main)] mb-1">
+                Báo cáo
+              </p>
+              <p className="text-sm text-[var(--text-muted)]">
+                Phân tích xu hướng dòng tiền
+              </p>
+            </div>
+          </div>
+
+          {/* Footer version */}
+          <p className="text-center text-xs text-[var(--text-muted)]">
+            Phiên bản 1.0 · Dữ liệu lưu trữ an toàn trên Supabase
+          </p>
+        </div>
       ) : null}
 
       {tab === 'edit' ? (

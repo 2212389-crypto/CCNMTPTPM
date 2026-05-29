@@ -59,20 +59,21 @@ export default function LoginPage() {
             <AppIcon name="wallet" className="h-6 w-6" />
           </div>
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#6c63ff]">Expense Manager</p>
-            <h1 className="mt-3 text-[28px] font-bold leading-tight text-[var(--text-main)]">Đăng nhập để tiếp tục quản lý tài chính theo cách rõ ràng hơn.</h1>
-            <p className="mt-4 max-w-xl text-[15px] leading-6 text-[var(--text-muted)]">Giao diện được tối ưu cho thói quen thao tác nhanh: nhìn số dư, thêm giao dịch và xem báo cáo chỉ trong vài cú nhấp.</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#6c63ff]">EXPENSE MANAGER</p>
+            <h1 className="mt-3 text-[28px] font-bold leading-tight text-[var(--text-main)]">Quản lý tài chính cá nhân thông minh</h1>
+            <p className="mt-4 max-w-xl text-[15px] leading-6 text-[var(--text-muted)]">Theo dõi thu chi, lập ngân sách và phân tích dòng tiền của bạn một cách trực quan — mọi lúc, mọi nơi.</p>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
             {[
-              'Bảo mật Supabase + RLS',
-              'Phân quyền ADMIN/USER rõ ràng',
-              'Thiết kế tối ưu cho mobile',
-              'Toast lỗi thay cho alert'
+              { title: 'Tài khoản đa nguồn', desc: 'Quản lý nhiều tài khoản ngân hàng và ví tiền mặt' },
+              { title: 'Báo cáo trực quan', desc: 'Biểu đồ thu chi theo tháng và xu hướng dòng tiền' },
+              { title: 'Ngân sách thông minh', desc: 'Đặt hạn mức chi tiêu, nhận cảnh báo khi vượt mức' },
+              { title: 'Bảo mật Supabase RLS', desc: 'Dữ liệu mã hóa, phân quyền riêng biệt mỗi người dùng' }
             ].map((item) => (
-              <div key={item} className="rounded-[12px] border border-white/70 bg-white/80 px-4 py-3 text-sm text-[var(--text-main)] backdrop-blur">
-                {item}
+              <div key={item.title} className="rounded-[12px] border border-white/70 bg-white/80 px-4 py-3 text-sm text-[var(--text-main)] backdrop-blur">
+                <p className="font-semibold">{item.title}</p>
+                <p className="text-xs text-[var(--text-muted)] mt-1">{item.desc}</p>
               </div>
             ))}
           </div>
