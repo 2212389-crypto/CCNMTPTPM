@@ -1,6 +1,7 @@
-'use client';
+"use client";
 
 import { useEffect } from 'react';
+import Button from './button';
 
 export default function ConfirmDialog({
   open,
@@ -46,12 +47,12 @@ export default function ConfirmDialog({
         <h3 className="mt-4 text-xl font-semibold text-[var(--text-main)]">{title}</h3>
         <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">{description}</p>
         <div className="mt-6 flex gap-3">
-          <button onClick={onCancel} className="flex-1 rounded-full border border-[var(--border)] bg-white px-4 py-3 text-sm font-semibold text-[var(--text-main)] hover:bg-[#f9fafb]">
+          <Button variant="secondary" className="flex-1" onClick={onCancel}>
             {cancelLabel}
-          </button>
-          <button onClick={onConfirm} className={`flex-1 rounded-full px-4 py-3 text-sm font-semibold text-white ${danger ? 'bg-[#e24b4a] hover:bg-[#c93b3a]' : 'bg-[#6c63ff] hover:bg-[#5b54f5]'}`}>
+          </Button>
+          <Button variant={danger ? 'danger' : 'primary'} className="flex-1" onClick={onConfirm}>
             {confirmLabel}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

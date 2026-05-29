@@ -1,13 +1,12 @@
 services:
   web:
     build:
-      context: ../apps/web
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: apps/web/Dockerfile
     container_name: expense-manager-web
+    env_file:
+      - ../apps/web/.env.local
     ports:
       - '3000:3000'
-    environment:
-      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
     restart: unless-stopped
 

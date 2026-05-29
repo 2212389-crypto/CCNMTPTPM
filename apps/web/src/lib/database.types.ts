@@ -11,6 +11,7 @@ export interface Database {
           type: string;
           balance: string | number;
           currency: string;
+          icon?: string | null;
           created_at: string;
         };
         Insert: {
@@ -19,12 +20,14 @@ export interface Database {
           type: string;
           balance: number;
           currency?: string;
+          icon?: string | null;
         };
         Update: {
           name?: string;
           type?: string;
           balance?: number;
           currency?: string;
+          icon?: string | null;
         };
       };
       transactions: {
@@ -34,7 +37,9 @@ export interface Database {
           account_id: string;
           amount: string | number;
           type: string;
+          category?: string | null;
           note: string | null;
+          date?: string | null;
           occurred_at: string;
           created_at: string;
         };
@@ -43,15 +48,50 @@ export interface Database {
           account_id: string;
           amount: number;
           type: string;
+          category?: string | null;
           note?: string | null;
           occurred_at?: string;
+          date?: string | null;
         };
         Update: {
           account_id?: string;
           amount?: number;
           type?: string;
+          category?: string | null;
           note?: string | null;
           occurred_at?: string;
+          date?: string | null;
+        };
+      };
+      profiles: {
+        Row: {
+          id: string;
+          user_id: string;
+          display_name: string | null;
+          email: string | null;
+          avatar_url: string | null;
+          bio: string | null;
+          currency: string;
+          theme: 'light' | 'dark' | 'system';
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          display_name?: string | null;
+          email?: string | null;
+          avatar_url?: string | null;
+          bio?: string | null;
+          currency?: string;
+          theme?: 'light' | 'dark' | 'system';
+        };
+        Update: {
+          display_name?: string | null;
+          email?: string | null;
+          avatar_url?: string | null;
+          bio?: string | null;
+          currency?: string;
+          theme?: 'light' | 'dark' | 'system';
         };
       };
       user_roles: {
@@ -108,6 +148,10 @@ export interface Database {
           user_id: string;
           category: string | null;
           scope: 'weekly' | 'monthly' | 'yearly' | 'category';
+          name?: string | null;
+          amount?: string | number;
+          month?: number | null;
+          year?: number | null;
           limit_amount: string | number;
           spent_amount: string | number;
           threshold_70: boolean;
@@ -122,6 +166,10 @@ export interface Database {
           user_id: string;
           category?: string | null;
           scope?: 'weekly' | 'monthly' | 'yearly' | 'category';
+          name?: string | null;
+          amount?: number;
+          month?: number | null;
+          year?: number | null;
           limit_amount: number;
           spent_amount?: number;
           threshold_70?: boolean;
@@ -133,6 +181,10 @@ export interface Database {
         Update: {
           category?: string | null;
           scope?: 'weekly' | 'monthly' | 'yearly' | 'category';
+          name?: string | null;
+          amount?: number;
+          month?: number | null;
+          year?: number | null;
           limit_amount?: number;
           spent_amount?: number;
           threshold_70?: boolean;

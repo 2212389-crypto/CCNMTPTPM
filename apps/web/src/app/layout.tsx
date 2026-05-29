@@ -6,6 +6,7 @@ import type { Metadata } from 'next';
 import SupabaseProvider from '@/components/supabase-provider';
 import SiteHeader from '@/components/site-header';
 import ToastProvider from '@/components/toast-provider';
+import { Toaster } from 'sonner';
 
 const jakarta = Plus_Jakarta_Sans({ subsets: ['latin', 'vietnamese'], variable: '--font-jakarta' });
 const mono = JetBrains_Mono({ subsets: ['latin', 'vietnamese'], variable: '--font-mono' });
@@ -32,6 +33,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </SiteHeader>
           </ToastProvider>
         </SupabaseProvider>
+        <Toaster position="top-right" richColors closeButton />
       </body>
     </html>
   );

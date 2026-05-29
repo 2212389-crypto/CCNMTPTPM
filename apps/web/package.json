@@ -21,7 +21,8 @@
     "@supabase/supabase-js": "^2.36.0",
     "next": "^15.2.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "sonner": "^2.0.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.0",

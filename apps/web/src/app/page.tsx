@@ -128,7 +128,8 @@ function GroupedMonthlyBars({ income, expense }: { income: number[]; expense: nu
   );
 }
 
-export default async function HomePage({ searchParams }: { searchParams?: { error?: string } }) {
+export default async function HomePage(props: any) {
+  const { searchParams } = props ?? {};
   const supabase = await createServerSupabaseClient();
   const {
     data: { session }

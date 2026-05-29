@@ -5,7 +5,7 @@ import { getSessionRole } from '@/lib/auth';
 import { Database } from '@/lib/database.types';
 import RedirectToast from '@/components/redirect-toast';
 import { AppIcon } from '@/components/icons';
-import { currencyFormatter, formatDateShort, formatRelativeTime } from '@/lib/format';
+import { currencyFormatter as formatCurrency, formatDateShort, formatRelativeTime } from '@/lib/format';
 
 const currencyFormatter = new Intl.NumberFormat('vi-VN', {
   style: 'currency',
@@ -16,6 +16,12 @@ type ActivityLogRow = Database['public']['Tables']['activity_logs']['Row'];
 type UserRoleRow = Database['public']['Tables']['user_roles']['Row'];
 type BudgetRow = Database['public']['Tables']['budgets']['Row'];
 type NotificationRow = Database['public']['Tables']['notifications']['Row'];
+type AuthUser = {
+  id: string;
+  email: string | null;
+  created_at: string;
+  user_metadata?: Record<string, any> | null;
+};
 
 function uniqueUserIds(ids: Array<string | null | undefined>) {
   return Array.from(new Set(ids.filter(Boolean))) as string[];
@@ -46,8 +52,10 @@ export default async function AdminDashboardPage() {
     adminClient.from('activity_logs').select('id,actor_user_id,target_user_id,action,entity_type,entity_id,metadata,created_at').order('created_at', { ascending: false }).limit(8)
   ]);
 
-  const accounts = accountsResponse.data ?? [];
-  const transactions = transactionsResponse.data ?? [];
+  const usersResponse = await adminClient.auth.admin.listUsers();
+  const authUsers = (usersResponse.data?.users ?? []) as AuthUser[];
+  const accounts = (accountsResponse.data ?? []) as Database['public']['Tables']['accounts']['Row'][];
+  const transactions = (transactionsResponse.data ?? []) as Database['public']['Tables']['transactions']['Row'][];
   const userRoles = (userRolesResponse.data ?? []) as UserRoleRow[];
   const budgets = (budgetsResponse.data ?? []) as BudgetRow[];
   const notifications = (notificationsResponse.data ?? []) as NotificationRow[];
@@ -59,7 +67,7 @@ export default async function AdminDashboardPage() {
   const activeToday = uniqueUserIds(
     transactions.filter((transaction) => new Date(transaction.occurred_at).toDateString() === new Date().toDateString()).map((transaction) => transaction.user_id)
   );
-  const totalUsers = uniqueUserIds([...accountUserIds, ...transactionUserIds, ...budgetUserIds, ...userRoles.map((userRole) => userRole.user_id)]).length;
+  const totalUsers = authUsers.length;
   const totalBalance = accounts.reduce((sum, account) => sum + Number(account.balance), 0);
   const totalIncome = transactions.filter((transaction) => transaction.type === 'income').reduce((sum, transaction) => sum + Number(transaction.amount), 0);
   const totalExpense = transactions.filter((transaction) => transaction.type === 'expense').reduce((sum, transaction) => sum + Number(transaction.amount), 0);
@@ -81,6 +89,7 @@ export default async function AdminDashboardPage() {
 
   const latestActivityLogs = activityLogs;
   const readOnlyUsers = userRoles.filter((userRole) => userRole.role === 'user').length;
+  const userRoleById = Object.fromEntries(userRoles.map((record) => [record.user_id, record.role]));
 
   return (
     <div className="space-y-6">
@@ -183,6 +192,35 @@ export default async function AdminDashboardPage() {
               <p className="text-[var(--text-muted)]">Chưa có activity log nào.</p>
             )}
           </div>
+        </div>
+      </section>
+
+      <section className="rounded-[12px] border border-[var(--border)] bg-white p-6 shadow-[var(--shadow-card)]">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">Danh sách tài khoản</p>
+            <h2 className="mt-2 text-[18px] font-semibold text-[var(--text-main)]">Danh sách người dùng</h2>
+          </div>
+          <span className="rounded-full bg-[#eef2ff] px-3 py-1 text-xs font-semibold text-[#3730a3]">{authUsers.length} users</span>
+        </div>
+        <div className="mt-4 space-y-3">
+          {authUsers.length > 0 ? (
+            authUsers.map((user) => (
+              <div key={user.id} className="rounded-[12px] border border-[var(--border)] bg-[#f9fafb] p-4">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-[var(--text-main)]">{user.email ?? 'Không có email'}</p>
+                    <p className="text-xs text-[var(--text-muted)] break-all">{user.id}</p>
+                  </div>
+                  <span className="rounded-full bg-[#eff6ff] px-3 py-1 text-xs font-semibold text-[#1d4ed8]">
+                    {userRoleById[user.id] ?? 'user'}
+                  </span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-[var(--text-muted)]">Chưa có tài khoản auth được tạo.</p>
+          )}
         </div>
       </section>
 
