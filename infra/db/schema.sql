@@ -13,13 +13,25 @@ create table if not exists public.accounts (
   created_at timestamptz not null default now()
 );
 
+-- categories
+create table if not exists public.categories (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  type text not null check (type in ('income', 'expense', 'transfer')),
+  created_at timestamptz not null default now(),
+  unique(user_id, name, type)
+);
+
 -- transactions
 create table if not exists public.transactions (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   account_id uuid references public.accounts(id) on delete cascade,
   amount numeric(14,2) not null,
-  type text not null,
+  type text not null check (type in ('income', 'expense', 'transfer')),
+  category text default 'Khác',
+  category_id uuid references public.categories(id) on delete set null,
   note text,
   occurred_at timestamptz not null default now(),
   created_at timestamptz not null default now()
@@ -290,3 +302,22 @@ create policy notifications_select_own on public.notifications
 drop policy if exists notifications_update_own on public.notifications;
 create policy notifications_update_own on public.notifications
   for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- RLS Policies for categories
+alter table public.categories enable row level security;
+
+drop policy if exists categories_select_own on public.categories;
+create policy categories_select_own on public.categories
+  for select using (auth.uid() = user_id);
+
+drop policy if exists categories_insert_own on public.categories;
+create policy categories_insert_own on public.categories
+  for insert with check (auth.uid() = user_id);
+
+drop policy if exists categories_update_own on public.categories;
+create policy categories_update_own on public.categories
+  for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+drop policy if exists categories_delete_own on public.categories;
+create policy categories_delete_own on public.categories
+  for delete using (auth.uid() = user_id);

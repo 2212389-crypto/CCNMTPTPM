@@ -3,6 +3,7 @@ import { authRequired } from "../middlewares/auth";
 import auth from "./auth.routes";
 import accounts from "./accounts.routes";
 import transactions from "./transactions.routes";
+import categories from "./categories.routes";
 import reports from "./reports.routes";
 import users from "./users.routes";
 import userActivities from "./user-activities.routes";
@@ -46,12 +47,14 @@ api.use("/auth", auth);
 
 // Public routes (no auth required)
 api.use("/seed", seed); // Seed routes for database setup
+api.use("/categories/defaults", categories); // Default categories
 
 // Protect all routes below with authentication
 api.use(authRequired);
 
 api.use("/accounts", accounts);
 api.use("/transactions", transactions);
+api.use("/categories", categories);
 api.use("/reports", reports);
 api.use("/users", users);
 api.use("/user-activities", userActivities);

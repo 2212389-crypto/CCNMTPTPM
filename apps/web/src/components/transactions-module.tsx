@@ -128,14 +128,13 @@ export default function TransactionsModule({
     setSubmitting(true);
     try {
       const payload = {
+        user_id: userId,
         account_id: draft.account_id,
-        type: draft.type,
+        type: draft.type.toUpperCase() as 'INCOME' | 'EXPENSE' | 'TRANSFER',
         amount: Number(draft.amount),
-        date: draft.date,
         occurred_at: `${draft.date}T00:00:00.000Z`,
-        category: draft.category.trim(),
-        note: draft.note.trim() || null,
-        user_id: userId
+        category: draft.category.trim() || 'Khác',
+        note: draft.note.trim() || null
       };
 
       if (editTx) {
@@ -145,13 +144,22 @@ export default function TransactionsModule({
           .eq('user_id', userId)
           .select('*')
           .single();
-        if (error) throw error;
+        if (error) {
+          console.error('Update error:', error);
+          throw new Error(error.message || 'Không thể cập nhật giao dịch');
+        }
         setTransactions((current) => current.map((transaction) => (transaction.id === editTx.id ? (data as TransactionRow) : transaction)));
         toast.success('Đã cập nhật giao dịch.');
         setEditTx(null);
       } else {
-        const { data, error } = await (supabase.from('transactions') as any).insert(payload as any).select('*').single();
-        if (error) throw error;
+        const { data, error } = await (supabase.from('transactions') as any)
+          .insert([payload] as any)
+          .select('*')
+          .single();
+        if (error) {
+          console.error('Insert error:', error);
+          throw new Error(error.message || 'Không thể tạo giao dịch');
+        }
         setTransactions((current) => [data as TransactionRow, ...current]);
         toast.success('Đã thêm giao dịch.');
         setCreateOpen(false);
