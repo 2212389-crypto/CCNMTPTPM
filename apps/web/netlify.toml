@@ -1,25 +1,22 @@
 [build]
   # Build command
   command = "npm run build"
-  
-  # Output directory
-  publish = "dist"
+
+  # Let the Next.js plugin manage the deploy output
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
 [build.environment]
   # Node.js version
   NODE_VERSION = "18"
 
-# SPA routing fallback
 [[redirects]]
   from = "/api/*"
   to = "https://expense-manager-api.onrender.com/api/:splat"
   status = 200
   force = true
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
 
 # Headers for security and performance
 [[headers]]
@@ -38,5 +35,5 @@
 # Custom error pages
 [[redirects]]
   from = "/404"
-  to = "/index.html"
+  to = "/404"
   status = 200
