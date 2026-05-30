@@ -127,45 +127,70 @@ export default function TransactionsModule({
     if (!validate()) return;
     setSubmitting(true);
     try {
+      // Get auth token from Supabase session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error('Vui lòng đăng nhập lại');
+      }
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
       const payload = {
-        user_id: userId,
-        account_id: draft.account_id,
         type: draft.type.toUpperCase() as 'INCOME' | 'EXPENSE' | 'TRANSFER',
         amount: Number(draft.amount),
-        occurred_at: `${draft.date}T00:00:00.000Z`,
+        occurredAt: `${draft.date}T00:00:00.000Z`,
+        accountId: draft.account_id,
         category: draft.category.trim() || 'Khác',
         note: draft.note.trim() || null
       };
 
       if (editTx) {
-        const { data, error } = await (supabase.from('transactions') as any)
-          .update(payload as any)
-          .eq('id', editTx.id)
-          .eq('user_id', userId)
-          .select('*')
-          .single();
-        if (error) {
-          console.error('Update error:', error);
+        const response = await fetch(`${apiUrl}/transactions/${editTx.id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
           throw new Error(error.message || 'Không thể cập nhật giao dịch');
         }
-        setTransactions((current) => current.map((transaction) => (transaction.id === editTx.id ? (data as TransactionRow) : transaction)));
+
+        const updatedTx = await response.json();
+        setTransactions((current) =>
+          current.map((transaction) =>
+            transaction.id === editTx.id
+              ? { ...updatedTx, account_id: updatedTx.accountId, occurred_at: updatedTx.occurredAt }
+              : transaction
+          )
+        );
         toast.success('Đã cập nhật giao dịch.');
         setEditTx(null);
       } else {
-        const { data, error } = await (supabase.from('transactions') as any)
-          .insert([payload] as any)
-          .select('*')
-          .single();
-        if (error) {
-          console.error('Insert error:', error);
+        const response = await fetch(`${apiUrl}/transactions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
           throw new Error(error.message || 'Không thể tạo giao dịch');
         }
-        setTransactions((current) => [data as TransactionRow, ...current]);
+
+        const newTx = await response.json();
+        setTransactions((current) => [{ ...newTx, account_id: newTx.accountId, occurred_at: newTx.occurredAt }, ...current]);
         toast.success('Đã thêm giao dịch.');
         setCreateOpen(false);
       }
       router.refresh();
     } catch (error) {
+      console.error('Transaction error:', error);
       toast.error(error instanceof Error ? error.message : 'Không thể lưu giao dịch.');
     } finally {
       setSubmitting(false);
@@ -176,13 +201,31 @@ export default function TransactionsModule({
     if (!deleteTx) return;
     setSubmitting(true);
     try {
-      const { error } = await (supabase.from('transactions') as any).delete().eq('id', deleteTx.id).eq('user_id', userId);
-      if (error) throw error;
+      // Get auth token from Supabase session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error('Vui lòng đăng nhập lại');
+      }
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+      const response = await fetch(`${apiUrl}/transactions/${deleteTx.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Không thể xoá giao dịch');
+      }
+
       setTransactions((current) => current.filter((transaction) => transaction.id !== deleteTx.id));
       toast.success('Đã xoá giao dịch.');
       setDeleteTx(null);
       router.refresh();
     } catch (error) {
+      console.error('Delete error:', error);
       toast.error(error instanceof Error ? error.message : 'Không thể xoá giao dịch.');
     } finally {
       setSubmitting(false);

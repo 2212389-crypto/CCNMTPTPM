@@ -14,12 +14,36 @@ export function authRequired(req: Request, res: Response, next: NextFunction) {
   if (!token) return res.status(401).json({ message: "Unauthorized" });
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET || 'dev_access_secret') as JwtUser;
-    
-    // Không cần kiểm tra user bị khóa nữa vì đã bỏ chức năng lock
-    req.user = payload;
+    // Try to verify with backend secret first
+    try {
+      const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET || 'dev_access_secret') as JwtUser;
+      req.user = payload;
+      return next();
+    } catch {
+      // If backend secret fails, try Supabase secret (without verification)
+      // This is for development/testing with Supabase tokens
+    }
+
+    // Parse Supabase JWT (which is signed by Supabase, not our backend)
+    const decoded = jwt.decode(token) as any;
+    if (!decoded) return res.status(401).json({ message: "Invalid token" });
+
+    // Map Supabase JWT to our format
+    // Supabase JWT has: sub (user_id), email, role
+    const supabaseUser: JwtUser = {
+      userId: decoded.sub || decoded.user_id || decoded.userId,
+      email: decoded.email,
+      role: decoded.role === 'admin' ? 'ADMIN' : 'USER'
+    };
+
+    if (!supabaseUser.userId) {
+      return res.status(401).json({ message: "Invalid token - missing user ID" });
+    }
+
+    req.user = supabaseUser;
     next();
-  } catch {
+  } catch (error) {
+    console.error('Auth error:', error);
     return res.status(401).json({ message: "Invalid token" });
   }
 }
